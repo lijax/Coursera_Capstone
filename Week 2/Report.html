@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+        <title>1. Introduction</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+        <link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <style>
+.task-list-item { list-style-type: none; } .task-list-item-checkbox { margin-left: -20px; vertical-align: middle; }
+</style>
+        <style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        
+        <script src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+    </head>
+    <body>
+        <h1 style="text-align:center">Identifying Ethnic Neighborhoods of New York City by Food Culture</h1>
+<h3 style="text-align:center">Capstone Project: The Battle of Neighborhoods</h3>
+<h3 style="text-align:center">Yanbo Ye</h3>
+<h3 style="text-align:center">2019-05-20</h3>
+<h2 id="1-introduction">1. Introduction</h2>
+<p>New York City is a multicultural city most popular in the United State. The population of New York City is very diverse in ethnicity, which includes non-Hispanic white (English, Italian, Irish, Russian, etc.), Hispanics White(Dominican, Puerto Rican, etc.), black(African, Caribbean, etc.), Asian(Chinese, Japanese, Korean, Indian, etc.).</p>
+<h3 id="11-problem">1.1 Problem</h3>
+<p>Most people like to live in a neighborhood with those of their own ethnic group. In this study, we will try to identify the ethinity of each neighborhood in New York City based on their food culture, specifically, the categories of <strong>Food Venues</strong> from location data.</p>
+<h3 id="12-interest">1.2 Interest</h3>
+<p>Identifying the domiant race of each neighborhood would be helpful to those who want to live or do buissiness in New York City.</p>
+<h2 id="2-data">2. Data</h2>
+<h3 id="21-data-source">2.1 Data Source</h3>
+<p>The neighborhood name and location data of New York City was downloaded from <a href="https://geo.nyu.edu/catalog/nyu_2451_34572">New York University</a>.</p>
+<p>The food venue data with name, category and location of each neighborhood was downloaded from Foursquare's <a href="https://developer.foursquare.com/docs/api/venues/explore">explore api</a>.</p>
+<p>The relation of food venue categories was downloaded from Foursquare's <a href="https://developer.foursquare.com/docs/api/venues/categories">categories api</a>.</p>
+<h3 id="22-data-cleaning">2.2 Data Cleaning</h3>
+<p>The neighborhood data, oringally in GeoJSON format, was transformed into a table with columns of <code>Neighborhood</code>, <code>Borough</code>, <code>Latitude</code>,<code>Longitude</code> and 306 entries.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Neighborhood</th>
+<th>Borough</th>
+<th>Latitude</th>
+<th>Longitude</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>Wakefield</td>
+<td>Bronx</td>
+<td>40.894705</td>
+<td>-73.847201</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Co-op City</td>
+<td>Bronx</td>
+<td>40.874294</td>
+<td>-73.829939</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Eastchester</td>
+<td>Bronx</td>
+<td>40.887556</td>
+<td>-73.827806</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Fieldston</td>
+<td>Bronx</td>
+<td>40.895437</td>
+<td>-73.905643</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Riverdale</td>
+<td>Bronx</td>
+<td>40.890834</td>
+<td>-73.912585</td>
+</tr>
+</tbody>
+</table>
+<p>The category data was a nested json format, in which each category has categories attribute to represent it's subcategories. We only take subcategories under the food node and flattened the data into a 347 rows table with the category <code>Id</code>, <code>Name</code>, <code>ParentId</code>. This table will be used to clean the food venue data.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Id</th>
+<th>Name</th>
+<th>ParentId</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>503288ae91d4c4b30a586d67</td>
+<td>Afghan Restaurant</td>
+<td>None</td>
+</tr>
+<tr>
+<td>1</td>
+<td>4bf58dd8d48988d1c8941735</td>
+<td>African Restaurant</td>
+<td>None</td>
+</tr>
+<tr>
+<td>2</td>
+<td>4bf58dd8d48988d10a941735</td>
+<td>Ethiopian Restaurant</td>
+<td>4bf58dd8d48988d1c8941735</td>
+</tr>
+<tr>
+<td>3</td>
+<td>4bf58dd8d48988d14e941735</td>
+<td>American Restaurant</td>
+<td>None</td>
+</tr>
+<tr>
+<td>4</td>
+<td>4bf58dd8d48988d157941735</td>
+<td>New American Restaurant</td>
+<td>4bf58dd8d48988d14e941735</td>
+</tr>
+</tbody>
+</table>
+<p>The food venue data within 500 meters radius of each neighborhood was downloaded from Foursquare API. <code>VenueId</code>, <code>VenueName</code>, <code>VenueLatitude</code>, <code>VenueLongitude</code>, <code>VenueCategoryId</code> and <code>VenueCategoryName</code> were extracted into a table of 8347 entries. 137 unique categories were found in these data. For those categories with venues less than 100, we rename the category to their parent if exist. <code>Sushi Restaurant</code> with 179 count was also merged into it's parent <code>Japanese Restaurant</code>. And then only categories with clear cultural or geographical background(such as <code>Chinese Restaurant</code>, <code>Italian Restaurant</code>, <code>Japanese Restaurant</code>, etc. full list as below.) were taken into account.</p>
+<table>
+<thead>
+<tr>
+<th>VenueCategoryName</th>
+<th>Count</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Chinese Restaurant</td>
+<td>559</td>
+</tr>
+<tr>
+<td>Italian Restaurant</td>
+<td>485</td>
+</tr>
+<tr>
+<td>Mexican Restaurant</td>
+<td>375</td>
+</tr>
+<tr>
+<td>American Restaurant</td>
+<td>360</td>
+</tr>
+<tr>
+<td>Asian Restaurant</td>
+<td>233</td>
+</tr>
+<tr>
+<td>Latin American Restaurant</td>
+<td>220</td>
+</tr>
+<tr>
+<td>Japanese Restaurant</td>
+<td>208</td>
+</tr>
+<tr>
+<td>Sushi Restaurant</td>
+<td>179</td>
+</tr>
+<tr>
+<td>Spanish Restaurant</td>
+<td>151</td>
+</tr>
+<tr>
+<td>Thai Restaurant</td>
+<td>135</td>
+</tr>
+<tr>
+<td>Caribbean Restaurant</td>
+<td>131</td>
+</tr>
+<tr>
+<td>Indian Restaurant</td>
+<td>124</td>
+</tr>
+<tr>
+<td>Korean Restaurant</td>
+<td>120</td>
+</tr>
+<tr>
+<td>French Restaurant</td>
+<td>120</td>
+</tr>
+<tr>
+<td>Mediterranean Restaurant</td>
+<td>89</td>
+</tr>
+<tr>
+<td>Greek Restaurant</td>
+<td>69</td>
+</tr>
+<tr>
+<td>Middle Eastern Restaurant</td>
+<td>65</td>
+</tr>
+<tr>
+<td>Eastern European Restaurant</td>
+<td>26</td>
+</tr>
+<tr>
+<td>Hawaiian Restaurant</td>
+<td>23</td>
+</tr>
+<tr>
+<td>Turkish Restaurant</td>
+<td>22</td>
+</tr>
+<tr>
+<td>African Restaurant</td>
+<td>15</td>
+</tr>
+<tr>
+<td>German Restaurant</td>
+<td>12</td>
+</tr>
+<tr>
+<td>Jewish Restaurant</td>
+<td>10</td>
+</tr>
+<tr>
+<td>Russian Restaurant</td>
+<td>10</td>
+</tr>
+<tr>
+<td>Polish Restaurant</td>
+<td>7</td>
+</tr>
+<tr>
+<td>Halal Restaurant</td>
+<td>7</td>
+</tr>
+<tr>
+<td>Irish Pub</td>
+<td>7</td>
+</tr>
+<tr>
+<td>Australian Restaurant</td>
+<td>6</td>
+</tr>
+<tr>
+<td>Pakistani Restaurant</td>
+<td>5</td>
+</tr>
+<tr>
+<td>Sri Lankan Restaurant</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Afghan Restaurant</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Swiss Restaurant</td>
+<td>3</td>
+</tr>
+<tr>
+<td>English Restaurant</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Austrian Restaurant</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Caucasian Restaurant</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Scandinavian Restaurant</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Belgian Restaurant</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Ukrainian Restaurant</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Modern European Restaurant</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Portuguese Restaurant</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Czech Restaurant</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p>This will reduce the size of our food venue dataset into 3805 entries with 40 categories and 271 neighborhoods.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>VenueId</th>
+<th>VenueName</th>
+<th>VenueLatitude</th>
+<th>VenueLongitude</th>
+<th>VenueCategoryId</th>
+<th>VenueCategoryName</th>
+<th>Neighborhood</th>
+<th>Borough</th>
+<th>Latitude</th>
+<th>Longitude</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>508af256e4b0578944c87392</td>
+<td>Cooler Runnings Jamaican Restaurant Inc</td>
+<td>40.898276</td>
+<td>-73.850381</td>
+<td>4bf58dd8d48988d144941735</td>
+<td>Caribbean Restaurant</td>
+<td>Wakefield</td>
+<td>Bronx</td>
+<td>40.894705</td>
+<td>-73.847201</td>
+</tr>
+<tr>
+<td>9</td>
+<td>4c9d5f2654c8a1cd2e71834b</td>
+<td>Guang Hui Chinese Restaurant</td>
+<td>40.876603</td>
+<td>-73.829710</td>
+<td>4bf58dd8d48988d145941735</td>
+<td>Chinese Restaurant</td>
+<td>Co-op City</td>
+<td>Bronx</td>
+<td>40.874294</td>
+<td>-73.829939</td>
+</tr>
+<tr>
+<td>16</td>
+<td>515cc20ce4b0deb133b8e89b</td>
+<td>Fish &amp; Ting</td>
+<td>40.885539</td>
+<td>-73.829151</td>
+<td>4bf58dd8d48988d144941735</td>
+<td>Caribbean Restaurant</td>
+<td>Eastchester</td>
+<td>Bronx</td>
+<td>40.887556</td>
+<td>-73.827806</td>
+</tr>
+<tr>
+<td>22</td>
+<td>4c632fbaeb82d13a3c5007d6</td>
+<td>Golden Krust Caribbean Bakery and Grill</td>
+<td>40.888543</td>
+<td>-73.831278</td>
+<td>4bf58dd8d48988d144941735</td>
+<td>Caribbean Restaurant</td>
+<td>Eastchester</td>
+<td>Bronx</td>
+<td>40.887556</td>
+<td>-73.827806</td>
+</tr>
+<tr>
+<td>25</td>
+<td>4dbf84a24df0f8fd6b88c9b6</td>
+<td>Royal Caribbean Bakery</td>
+<td>40.888252</td>
+<td>-73.831457</td>
+<td>4bf58dd8d48988d144941735</td>
+<td>Caribbean Restaurant</td>
+<td>Eastchester</td>
+<td>Bronx</td>
+<td>40.887556</td>
+<td>-73.827806</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-methodology">3. Methodology</h2>
+<p>In this project, we'll try to cluster neighborhoods in New York City and assign each neighborhood an ethnic label based on the categories of venues nearby using k-means algorithms. We already prepared 40 ethnic food categories and 3805 venues of 271 neighborhoods. Before we start clustering, let's first define our neighborhood feature matrix to be used to solve the problem.</p>
+<ol>
+<li>
+<p>For one neighborhood, the vector of venue count of each categories denote as:</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mover accent="true"><mi>C</mi><mo>⃗</mo></mover><mo>=</mo><mo>(</mo><msub><mi>c</mi><mn>1</mn></msub><mo separator="true">,</mo><msub><mi>c</mi><mn>2</mn></msub><mo separator="true">,</mo><mo>⋯</mo><mtext>&ThinSpace;</mtext><mo separator="true">,</mo><msub><mi>c</mi><mi>n</mi></msub><mo>)</mo></mrow><annotation encoding="application/x-tex">\vec C = (c_1, c_2, \cdots, c_n)
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9663299999999999em;vertical-align:0em;"></span><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.9663299999999999em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathdefault" style="margin-right:0.07153em;">C</span></span><span style="top:-3.25233em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.15216em;"><span class="overlay" style="height:0.714em;width:0.471em;"><svg width='0.471em' height='0.714em' style='width:0.471em' viewBox='0 0 471 714' preserveAspectRatio='xMinYMin'><path d='M377 20c0-5.333 1.833-10 5.5-14S391 0 397 0c4.667 0 8.667 1.667 12 5
+3.333 2.667 6.667 9 10 19 6.667 24.667 20.333 43.667 41 57 7.333 4.667 11
+10.667 11 18 0 6-1 10-3 12s-6.667 5-14 9c-28.667 14.667-53.667 35.667-75 63
+-1.333 1.333-3.167 3.5-5.5 6.5s-4 4.833-5 5.5c-1 .667-2.5 1.333-4.5 2s-4.333 1
+-7 1c-4.667 0-9.167-1.833-13.5-5.5S337 184 337 178c0-12.667 15.667-32.333 47-59
+H213l-171-1c-8.667-6-13-12.333-13-19 0-4.667 4.333-11.333 13-20h359
+c-16-25.333-24-45-24-59z'/></svg></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="minner">⋯</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></span></p>
+</li>
+<li>
+<p>As we only consider how much portion each category contribute to the final ethnic label of the neighborhood, we'll define neighborhood feature vector as:</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mover accent="true"><mi>F</mi><mo>⃗</mo></mover><mo>=</mo><mfrac><mover accent="true"><mi>C</mi><mo>⃗</mo></mover><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>c</mi><mi>i</mi></msub></mrow></mfrac></mrow><annotation encoding="application/x-tex">\vec F = \frac{\vec C}{\sum_{i=1}^n{c_i}}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9663299999999999em;vertical-align:0em;"></span><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.9663299999999999em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">F</span></span><span style="top:-3.25233em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.15216em;"><span class="overlay" style="height:0.714em;width:0.471em;"><svg width='0.471em' height='0.714em' style='width:0.471em' viewBox='0 0 471 714' preserveAspectRatio='xMinYMin'><path d='M377 20c0-5.333 1.833-10 5.5-14S391 0 397 0c4.667 0 8.667 1.667 12 5
+3.333 2.667 6.667 9 10 19 6.667 24.667 20.333 43.667 41 57 7.333 4.667 11
+10.667 11 18 0 6-1 10-3 12s-6.667 5-14 9c-28.667 14.667-53.667 35.667-75 63
+-1.333 1.333-3.167 3.5-5.5 6.5s-4 4.833-5 5.5c-1 .667-2.5 1.333-4.5 2s-4.333 1
+-7 1c-4.667 0-9.167-1.833-13.5-5.5S337 184 337 178c0-12.667 15.667-32.333 47-59
+H213l-171-1c-8.667-6-13-12.333-13-19 0-4.667 4.333-11.333 13-20h359
+c-16-25.333-24-45-24-59z'/></svg></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:2.637332em;vertical-align:-0.994002em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.64333em;"><span style="top:-2.305708em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:-0.0000050000000000050004em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.804292em;"><span style="top:-2.40029em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.2029em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.29971000000000003em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord"><span class="mord mathdefault">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.9663299999999999em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathdefault" style="margin-right:0.07153em;">C</span></span><span style="top:-3.25233em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.15216em;"><span class="overlay" style="height:0.714em;width:0.471em;"><svg width='0.471em' height='0.714em' style='width:0.471em' viewBox='0 0 471 714' preserveAspectRatio='xMinYMin'><path d='M377 20c0-5.333 1.833-10 5.5-14S391 0 397 0c4.667 0 8.667 1.667 12 5
+3.333 2.667 6.667 9 10 19 6.667 24.667 20.333 43.667 41 57 7.333 4.667 11
+10.667 11 18 0 6-1 10-3 12s-6.667 5-14 9c-28.667 14.667-53.667 35.667-75 63
+-1.333 1.333-3.167 3.5-5.5 6.5s-4 4.833-5 5.5c-1 .667-2.5 1.333-4.5 2s-4.333 1
+-7 1c-4.667 0-9.167-1.833-13.5-5.5S337 184 337 178c0-12.667 15.667-32.333 47-59
+H213l-171-1c-8.667-6-13-12.333-13-19 0-4.667 4.333-11.333 13-20h359
+c-16-25.333-24-45-24-59z'/></svg></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.994002em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+</li>
+<li>
+<p>For all <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>m</mi></mrow><annotation encoding="application/x-tex">m</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">m</span></span></span></span> neighborhood, we got our feature matrix as:</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>F</mi><mo>=</mo><mrow><mo fence="true">(</mo><mtable><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><msub><mover accent="true"><mi>F</mi><mo>⃗</mo></mover><mn>1</mn></msub></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><msub><mover accent="true"><mi>F</mi><mo>⃗</mo></mover><mn>2</mn></msub></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mi mathvariant="normal">⋮</mi><mrow></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><msub><mover accent="true"><mi>F</mi><mo>⃗</mo></mover><mi>m</mi></msub></mstyle></mtd></mtr></mtable><mo fence="true">)</mo></mrow></mrow><annotation encoding="application/x-tex">F =
+\begin{pmatrix}
+\vec F_1\\
+\vec F_2\\
+\vdots\\
+\vec F_m\\
+\end{pmatrix}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">F</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:5.83899em;vertical-align:-2.6694949999999995em;"></span><span class="minner"><span class="mopen"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.9500349999999997em;"><span style="top:-1.3499850000000007em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎝</span></span></span><span style="top:-2.5049950000000005em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎜</span></span></span><span style="top:-3.1050050000000007em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎜</span></span></span><span style="top:-3.7050150000000004em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎜</span></span></span><span style="top:-4.950035em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎛</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:2.4500349999999997em;"><span></span></span></span></span></span></span><span class="mord"><span class="mtable"><span class="col-align-c"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:3.1694950000000004em;"><span style="top:-5.890665em;"><span class="pstrut" style="height:3.6875em;"></span><span class="mord"><span class="mord"><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.9663299999999999em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">F</span></span><span style="top:-3.25233em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.15216em;"><span class="overlay" style="height:0.714em;width:0.471em;"><svg width='0.471em' height='0.714em' style='width:0.471em' viewBox='0 0 471 714' preserveAspectRatio='xMinYMin'><path d='M377 20c0-5.333 1.833-10 5.5-14S391 0 397 0c4.667 0 8.667 1.667 12 5
+3.333 2.667 6.667 9 10 19 6.667 24.667 20.333 43.667 41 57 7.333 4.667 11
+10.667 11 18 0 6-1 10-3 12s-6.667 5-14 9c-28.667 14.667-53.667 35.667-75 63
+-1.333 1.333-3.167 3.5-5.5 6.5s-4 4.833-5 5.5c-1 .667-2.5 1.333-4.5 2s-4.333 1
+-7 1c-4.667 0-9.167-1.833-13.5-5.5S337 184 337 178c0-12.667 15.667-32.333 47-59
+H213l-171-1c-8.667-6-13-12.333-13-19 0-4.667 4.333-11.333 13-20h359
+c-16-25.333-24-45-24-59z'/></svg></span></span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-4.564335000000001em;"><span class="pstrut" style="height:3.6875em;"></span><span class="mord"><span class="mord"><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.9663299999999999em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">F</span></span><span style="top:-3.25233em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.15216em;"><span class="overlay" style="height:0.714em;width:0.471em;"><svg width='0.471em' height='0.714em' style='width:0.471em' viewBox='0 0 471 714' preserveAspectRatio='xMinYMin'><path d='M377 20c0-5.333 1.833-10 5.5-14S391 0 397 0c4.667 0 8.667 1.667 12 5
+3.333 2.667 6.667 9 10 19 6.667 24.667 20.333 43.667 41 57 7.333 4.667 11
+10.667 11 18 0 6-1 10-3 12s-6.667 5-14 9c-28.667 14.667-53.667 35.667-75 63
+-1.333 1.333-3.167 3.5-5.5 6.5s-4 4.833-5 5.5c-1 .667-2.5 1.333-4.5 2s-4.333 1
+-7 1c-4.667 0-9.167-1.833-13.5-5.5S337 184 337 178c0-12.667 15.667-32.333 47-59
+H213l-171-1c-8.667-6-13-12.333-13-19 0-4.667 4.333-11.333 13-20h359
+c-16-25.333-24-45-24-59z'/></svg></span></span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-2.704335000000001em;"><span class="pstrut" style="height:3.6875em;"></span><span class="mord"><span class="mord"><span class="mord">⋮</span><span class="mord rule" style="border-right-width:0em;border-top-width:1.5em;bottom:0em;"></span></span></span></span><span style="top:-1.3780050000000006em;"><span class="pstrut" style="height:3.6875em;"></span><span class="mord"><span class="mord"><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.9663299999999999em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">F</span></span><span style="top:-3.25233em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.15216em;"><span class="overlay" style="height:0.714em;width:0.471em;"><svg width='0.471em' height='0.714em' style='width:0.471em' viewBox='0 0 471 714' preserveAspectRatio='xMinYMin'><path d='M377 20c0-5.333 1.833-10 5.5-14S391 0 397 0c4.667 0 8.667 1.667 12 5
+3.333 2.667 6.667 9 10 19 6.667 24.667 20.333 43.667 41 57 7.333 4.667 11
+10.667 11 18 0 6-1 10-3 12s-6.667 5-14 9c-28.667 14.667-53.667 35.667-75 63
+-1.333 1.333-3.167 3.5-5.5 6.5s-4 4.833-5 5.5c-1 .667-2.5 1.333-4.5 2s-4.333 1
+-7 1c-4.667 0-9.167-1.833-13.5-5.5S337 184 337 178c0-12.667 15.667-32.333 47-59
+H213l-171-1c-8.667-6-13-12.333-13-19 0-4.667 4.333-11.333 13-20h359
+c-16-25.333-24-45-24-59z'/></svg></span></span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">m</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:2.6694949999999995em;"><span></span></span></span></span></span></span></span><span class="mclose"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.9500349999999997em;"><span style="top:-1.3499850000000007em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎠</span></span></span><span style="top:-2.5049950000000005em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎟</span></span></span><span style="top:-3.1050050000000007em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎟</span></span></span><span style="top:-3.7050150000000004em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎟</span></span></span><span style="top:-4.950035em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎞</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:2.4500349999999997em;"><span></span></span></span></span></span></span></span></span></span></span></span></p>
+</li>
+</ol>
+<p>After clustering, we need to examine the cluster and assign each cluster an label. Suppose we got <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span></span></span></span> clusters. For each cluster with <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span></span></span></span> neighborhoods, we use the mean to evaluate category contribution. We got our cluster evaluation matrix as:</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>E</mi><mo>=</mo><mrow><mo fence="true">(</mo><mtable><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mfrac><mrow><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><msub><mi>N</mi><mn>1</mn></msub></msubsup><msub><mover accent="true"><mi>F</mi><mo>⃗</mo></mover><mi>i</mi></msub></mrow><msub><mi>N</mi><mn>1</mn></msub></mfrac></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mfrac><mrow><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><msub><mi>N</mi><mn>2</mn></msub></msubsup><msub><mover accent="true"><mi>F</mi><mo>⃗</mo></mover><mi>i</mi></msub></mrow><msub><mi>N</mi><mn>2</mn></msub></mfrac></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mi mathvariant="normal">⋮</mi><mrow></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mfrac><mrow><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><msub><mi>N</mi><mi>k</mi></msub></msubsup><msub><mover accent="true"><mi>F</mi><mo>⃗</mo></mover><mi>i</mi></msub></mrow><msub><mi>N</mi><mi>k</mi></msub></mfrac></mstyle></mtd></mtr></mtable><mo fence="true">)</mo></mrow></mrow><annotation encoding="application/x-tex"> E =
+  \begin{pmatrix}
+  \frac{\sum_{i=1}^{N_1} \vec F_i}{N_1} \\
+  \frac{\sum_{i=1}^{N_2} \vec F_i}{N_2} \\
+  \vdots\\
+  \frac{\sum_{i=1}^{N_k} \vec F_i}{N_k} \\
+\end{pmatrix}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05764em;">E</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:7.031395em;vertical-align:-3.2656975em;"></span><span class="minner"><span class="mopen"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:3.550045em;"><span style="top:-0.7499750000000004em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎝</span></span></span><span style="top:-1.9049850000000004em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎜</span></span></span><span style="top:-2.5049950000000005em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎜</span></span></span><span style="top:-3.1050050000000002em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎜</span></span></span><span style="top:-3.705015em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎜</span></span></span><span style="top:-4.305025em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎜</span></span></span><span style="top:-5.550045em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎛</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:3.050045em;"><span></span></span></span></span></span></span><span class="mord"><span class="mtable"><span class="col-align-c"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:3.7656975em;"><span style="top:-6.1847525em;"><span class="pstrut" style="height:3.6875em;"></span><span class="mord"><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.268445em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31731428571428577em;"><span style="top:-2.357em;margin-left:-0.10903em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.5356em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mop mtight"><span class="mop op-symbol small-op mtight" style="position:relative;top:-0.0000050000000000050004em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.0469214285714286em;"><span style="top:-2.177714285714286em;margin-left:0em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.0588285714285717em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3447999999999998em;margin-left:-0.10903em;margin-right:0.1em;"><span class="pstrut" style="height:2.64444em;"></span><span class="mord mtight">1</span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.29964em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3222857142857143em;"><span></span></span></span></span></span></span><span class="mspace mtight" style="margin-right:0.19516666666666668em;"></span><span class="mord mtight"><span class="mord accent mtight"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.9663299999999999em;"><span style="top:-2.714em;"><span class="pstrut" style="height:2.714em;"></span><span class="mord mathdefault mtight" style="margin-right:0.13889em;">F</span></span><span style="top:-2.96633em;"><span class="pstrut" style="height:2.714em;"></span><span class="accent-body" style="left:-0.15216em;"><span class="overlay mtight" style="height:0.714em;width:0.471em;"><svg width='0.471em' height='0.714em' style='width:0.471em' viewBox='0 0 471 714' preserveAspectRatio='xMinYMin'><path d='M377 20c0-5.333 1.833-10 5.5-14S391 0 397 0c4.667 0 8.667 1.667 12 5
+3.333 2.667 6.667 9 10 19 6.667 24.667 20.333 43.667 41 57 7.333 4.667 11
+10.667 11 18 0 6-1 10-3 12s-6.667 5-14 9c-28.667 14.667-53.667 35.667-75 63
+-1.333 1.333-3.167 3.5-5.5 6.5s-4 4.833-5 5.5c-1 .667-2.5 1.333-4.5 2s-4.333 1
+-7 1c-4.667 0-9.167-1.833-13.5-5.5S337 184 337 178c0-12.667 15.667-32.333 47-59
+H213l-171-1c-8.667-6-13-12.333-13-19 0-4.667 4.333-11.333 13-20h359
+c-16-25.333-24-45-24-59z'/></svg></span></span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3280857142857143em;"><span style="top:-2.357em;margin-left:-0.13889em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.44509999999999994em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span><span style="top:-4.4712075em;"><span class="pstrut" style="height:3.6875em;"></span><span class="mord"><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.268445em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31731428571428577em;"><span style="top:-2.357em;margin-left:-0.10903em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.5356em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mop mtight"><span class="mop op-symbol small-op mtight" style="position:relative;top:-0.0000050000000000050004em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.0469214285714286em;"><span style="top:-2.177714285714286em;margin-left:0em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.0588285714285717em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3447999999999998em;margin-left:-0.10903em;margin-right:0.1em;"><span class="pstrut" style="height:2.64444em;"></span><span class="mord mtight">2</span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.29964em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3222857142857143em;"><span></span></span></span></span></span></span><span class="mspace mtight" style="margin-right:0.19516666666666668em;"></span><span class="mord mtight"><span class="mord accent mtight"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.9663299999999999em;"><span style="top:-2.714em;"><span class="pstrut" style="height:2.714em;"></span><span class="mord mathdefault mtight" style="margin-right:0.13889em;">F</span></span><span style="top:-2.96633em;"><span class="pstrut" style="height:2.714em;"></span><span class="accent-body" style="left:-0.15216em;"><span class="overlay mtight" style="height:0.714em;width:0.471em;"><svg width='0.471em' height='0.714em' style='width:0.471em' viewBox='0 0 471 714' preserveAspectRatio='xMinYMin'><path d='M377 20c0-5.333 1.833-10 5.5-14S391 0 397 0c4.667 0 8.667 1.667 12 5
+3.333 2.667 6.667 9 10 19 6.667 24.667 20.333 43.667 41 57 7.333 4.667 11
+10.667 11 18 0 6-1 10-3 12s-6.667 5-14 9c-28.667 14.667-53.667 35.667-75 63
+-1.333 1.333-3.167 3.5-5.5 6.5s-4 4.833-5 5.5c-1 .667-2.5 1.333-4.5 2s-4.333 1
+-7 1c-4.667 0-9.167-1.833-13.5-5.5S337 184 337 178c0-12.667 15.667-32.333 47-59
+H213l-171-1c-8.667-6-13-12.333-13-19 0-4.667 4.333-11.333 13-20h359
+c-16-25.333-24-45-24-59z'/></svg></span></span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3280857142857143em;"><span style="top:-2.357em;margin-left:-0.13889em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.44509999999999994em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span><span style="top:-2.5261074999999997em;"><span class="pstrut" style="height:3.6875em;"></span><span class="mord"><span class="mord"><span class="mord">⋮</span><span class="mord rule" style="border-right-width:0em;border-top-width:1.5em;bottom:0em;"></span></span></span></span><span style="top:-0.8726625em;"><span class="pstrut" style="height:3.6875em;"></span><span class="mord"><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.2934450000000002em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3487714285714287em;margin-left:-0.10903em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathdefault mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15122857142857138em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.5356em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mop mtight"><span class="mop op-symbol small-op mtight" style="position:relative;top:-0.0000050000000000050004em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.0826357142857144em;"><span style="top:-2.177714285714286em;margin-left:0em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.0945428571428573em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3448em;margin-left:-0.10903em;margin-right:0.1em;"><span class="pstrut" style="height:2.69444em;"></span><span class="mord mathdefault mtight" style="margin-right:0.03148em;">k</span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.34963999999999995em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3222857142857143em;"><span></span></span></span></span></span></span><span class="mspace mtight" style="margin-right:0.19516666666666668em;"></span><span class="mord mtight"><span class="mord accent mtight"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.9663299999999999em;"><span style="top:-2.714em;"><span class="pstrut" style="height:2.714em;"></span><span class="mord mathdefault mtight" style="margin-right:0.13889em;">F</span></span><span style="top:-2.96633em;"><span class="pstrut" style="height:2.714em;"></span><span class="accent-body" style="left:-0.15216em;"><span class="overlay mtight" style="height:0.714em;width:0.471em;"><svg width='0.471em' height='0.714em' style='width:0.471em' viewBox='0 0 471 714' preserveAspectRatio='xMinYMin'><path d='M377 20c0-5.333 1.833-10 5.5-14S391 0 397 0c4.667 0 8.667 1.667 12 5
+3.333 2.667 6.667 9 10 19 6.667 24.667 20.333 43.667 41 57 7.333 4.667 11
+10.667 11 18 0 6-1 10-3 12s-6.667 5-14 9c-28.667 14.667-53.667 35.667-75 63
+-1.333 1.333-3.167 3.5-5.5 6.5s-4 4.833-5 5.5c-1 .667-2.5 1.333-4.5 2s-4.333 1
+-7 1c-4.667 0-9.167-1.833-13.5-5.5S337 184 337 178c0-12.667 15.667-32.333 47-59
+H213l-171-1c-8.667-6-13-12.333-13-19 0-4.667 4.333-11.333 13-20h359
+c-16-25.333-24-45-24-59z'/></svg></span></span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3280857142857143em;"><span style="top:-2.357em;margin-left:-0.13889em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4508599999999999em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:3.2656975em;"><span></span></span></span></span></span></span></span><span class="mclose"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:3.550045em;"><span style="top:-0.7499750000000004em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎠</span></span></span><span style="top:-1.9049850000000004em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎟</span></span></span><span style="top:-2.5049950000000005em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎟</span></span></span><span style="top:-3.1050050000000002em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎟</span></span></span><span style="top:-3.705015em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎟</span></span></span><span style="top:-4.305025em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎟</span></span></span><span style="top:-5.550045em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎞</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:3.050045em;"><span></span></span></span></span></span></span></span></span></span></span></span></p>
+<h3 id="31-clustering-with-raw-categories">3.1 Clustering with raw categories</h3>
+<p>First, we use 40 category features to cluster neighborhoods using k-means. The elbow curve (Fig 1.) was plot to find an optimal number of clusters.</p>
+<figure style="text-align:center">
+  <img src="file:////Users/yeyanbo/Projects/Coursera_Capstone/Week 2/image/first_clustring_elbow_curve.png" alt="Fig 1. Clustering elbow curve based on raw categories"/>
+  <figcaption>Fig 1. Clustering elbow curve based on raw categories</figcaption>
+</figure>
+<p>There's no quite obvious elbow points on the curve. Maybe 6 or 8 can be the choice and we choose 8. The contribution of top 10 categories for the result clusters were plotted in pie chart (Fig 2.).</p>
+<figure style="text-align:center">
+  <img src="file:////Users/yeyanbo/Projects/Coursera_Capstone/Week 2/image/first_clustring_result.png" alt="Fig 2. Category mean contribution of neighborhood clusters based on raw categories"/>
+  <figcaption>Fig 2. Category mean contribution of neighborhood clusters based on raw categories</figcaption>
+</figure>
+<p>From the result, we can assign labels as follows:</p>
+<ol>
+<li>The first cluster is dominant with <strong>American Restaurant</strong>. We'll call it <strong>American</strong>.</li>
+<li>The second cluster is so diverse. We'll just call it <strong>Diverse</strong>.</li>
+<li>The third cluster is dominant with <strong>Italian Restaurant</strong>. We'll call it <strong>Italian</strong>.</li>
+<li>The forth cluster is dominant with <strong>Spanish Restaurant</strong>. We'll call it <strong>Spanish</strong>.</li>
+<li>The fifth cluster is dominant with <strong>Caribbean Restaurant</strong>. We'll call it <strong>Caribbean</strong>.</li>
+<li>The sixth cluster is dominant with <strong>Chinese Restaurant</strong>. We'll call it <strong>Chinese</strong>.</li>
+<li>The seventh cluster is top with <strong>Chinese Restaurant</strong>, but diverse with many others. We'll call it <strong>Chinese diverse</strong>.</li>
+<li>The eighth cluster is dominant with <strong>Latin American Restaurant</strong>, <strong>Spanish Restaurant</strong> and <strong>Mexican Restaurant</strong>. We may label it <strong>Hispanic</strong>.</li>
+</ol>
+<p>All neighborhoods with assigned labels were visualized on the map (Fig 3.).</p>
+<figure style="text-align:center">
+  <img src="file:////Users/yeyanbo/Projects/Coursera_Capstone/Week 2/image/first_clustring_map.png" alt="Fig 3. Ethnic Neighborhood clusters of New York City based on raw categories"/>
+  <figcaption>Fig 3. Ethnic Neighborhood clusters of New York City based on raw categories</figcaption>
+</figure>
+<p>We can see these infos from this map:</p>
+<ol>
+<li>Most neighborhoods on <code>Staten Island</code> are <strong>Italian</strong> dominant;</li>
+<li>Almost all neighborhoods in <code>Manhattan</code> are labeled <strong>Diverse</strong>;</li>
+<li><strong>Hispanic</strong> neighborhoods are mainly distributed in <code>The Bronx</code> and <code>Queens</code>;</li>
+<li><strong>Caribbean</strong> neighborhoods are mainly located in three geographical clusters in <code>The Bronx</code> and <code>Queens</code> and <code>Brooklyn</code>;</li>
+</ol>
+<h3 id="32-clustering-with-generalized-categories">3.2 Clustering with generalized categories</h3>
+<p>The first clustering used 40 categories. But many of them are in low count. To reduce the feature size, we manually merged those categories into 7 general categories based on their cultural or geographical background.</p>
+<ol>
+<li>White: <em>Italian Restaurant</em>, <em>American Restaurant</em>, <em>French Restaurant</em>, <em>Mediterranean Restaurant</em>, <em>Greek Restaurant</em>, <em>Eastern European Restaurant</em>, <em>German Restaurant</em>, <em>Jewish Restaurant</em>, <em>Russian Restaurant</em>, <em>Polish Restaurant</em>, <em>Irish Pub</em>, <em>Hawaiian Restaurant</em>, <em>Swiss Restaurant</em>, <em>English Restaurant</em>, <em>Australian Restaurant</em>, <em>Austrian Restaurant</em>, <em>Caucasian Restaurant</em>, <em>Scandinavian Restaurant</em>, <em>Belgian Restaurant</em>, <em>Ukrainian Restaurant</em>, <em>Modern European Restaurant</em>, <em>Portuguese Restaurant</em>, <em>Czech Restaurant</em>;</li>
+<li>Hispanic: <em>Mexican Restaurant</em>, <em>Latin American Restaurant</em>, <em>Spanish Restaurant</em>;</li>
+<li>East Asian: <em>Chinese Restaurant</em>, <em>Japanese Restaurant</em>, <em>Korean Restaurant</em>;</li>
+<li>Other Asian: <em>Middle Eastern Restaurant</em>, <em>Turkish Restaurant</em>, <em>Halal Restaurant</em>, <em>Afghan Restaurant</em>, <em>Kebab Restaurant</em>, <em>Thai Restaurant</em>, <em>Indian Restaurant</em>, <em>Pakistani Restaurant</em>, <em>Sri Lankan Restaurant</em>;</li>
+<li>Asian: <em>Asian Restaurant</em>;</li>
+<li>Caribbean: <em>Caribbean Restaurant</em>;</li>
+<li>African: <em>African Restaurant</em>;</li>
+</ol>
+<p>After merge, the same process conducted as the first clustering.</p>
+<figure style="text-align:center">
+  <img src="file:////Users/yeyanbo/Projects/Coursera_Capstone/Week 2/image/second_clustring_elbow_curve.png" alt="Fig 4. Clustering elbow curve based on generalized categories"/>
+  <figcaption>Fig 4. Clustering elbow curve based on generalized categories</figcaption>
+</figure>
+<p>The elbow curve is as above (Fig 4.) and we still use 8 as number of clusters.</p>
+<figure style="text-align:center">
+  <img src="file:////Users/yeyanbo/Projects/Coursera_Capstone/Week 2/image/second_clustring_result.png" alt="Fig 5. Category mean contribution of neighborhood clusters based on generalized categories"/>
+  <figcaption>Fig 5. Category mean contribution of neighborhood clusters based on generalized categories</figcaption>
+</figure>
+<p>From the contribution pie charts (Fig 5.) of the clustering result, we can assign labels as below:</p>
+<ol>
+<li>The first cluster is <strong>Asian Diverse</strong>, with <em>Asian</em> (including <em>East Asian</em> and <em>Other Asian</em>) and <em>White</em> take up the most part.</li>
+<li>The second cluster is <strong>Hispanic</strong> dominant.</li>
+<li>The third cluster is <strong>White</strong> dominant.</li>
+<li>The forth cluster is <strong>Caribbean</strong> dominant.</li>
+<li>The fifth cluster is <strong>White Diverse</strong>, with <em>White</em> as top sector and <em>East Asian</em>, <em>Hispanic</em>, <em>Asian</em>, <em>Other Asian</em> follows.</li>
+<li>The sixth cluster is <strong>Hispanic Diverse</strong>, with <em>Hispanic</em> the top and <em>East Asian</em>, <em>White</em> follows.</li>
+<li>The seventh cluster is <strong>East Asian</strong> dominant.</li>
+<li>The eighth cluster is <strong>Asian</strong> dominant.</li>
+</ol>
+<figure style="text-align:center">
+  <img src="file:////Users/yeyanbo/Projects/Coursera_Capstone/Week 2/image/second_clustring_map.png" alt="Fig 6. Ethnic Neighborhood clusters of New York City based on generalized categories"/>
+  <figcaption>Fig 6. Ethnic Neighborhood clusters of New York City based on generalized categories</figcaption>
+</figure>
+<p>We can see these infos from the map (Fig 6.):</p>
+<ol>
+<li>Most neighborhoods on <em>Staten Island</em> are <strong>White</strong> or <strong>White Diverse</strong>;</li>
+<li>Almost all neighborhoods in <em>Manhattan</em> are labeled <strong>White</strong> or <strong>White Diverse</strong>;</li>
+<li><strong>Hispanic</strong> or <strong>Hispanic Diverse</strong> neighborhoods are distributed in <code>The Bronx</code> and <code>Queens</code>;</li>
+<li><strong>Caribbean</strong> neighborhoods are mainly located in three geographical clusters in <code>The Bronx</code> and <code>Queens</code> and <code>Brooklyn</code>;</li>
+</ol>
+<h2 id="4-results--discussion">4. Results &amp; Discussion</h2>
+<p>As it showed in two clustering results, the ethnic neighborhoods distribution patterns are almost the same. The only difference is that the neighborhoods in <em>Manhattan</em> were labeled <strong>White</strong>/<strong>White Diverse</strong> in the later clustering instead of <strong>Diverse</strong>.</p>
+<p>To verify our clustering result, we need to compare it to the real ethnic distribution data in New York City.</p>
+<p>We find there's a figure (Fig 7.) showing the <strong>Predominant race/ethnicity by tract</strong> from a research called <a href="https://www.gc.cuny.edu/Page-Elements/Academics-Research-Centers-Initiatives/Centers-and-Institutes/Center-for-Urban-Research/CUR-research-initiatives/Communities-of-Interest-in-New-York-City">&quot;COMMUNITIES OF INTEREST&quot; IN NEW YORK CITY</a>.</p>
+<figure style="text-align:center">
+  <img src="https://www.gc.cuny.edu/CUNY_GC/media/CUNY-Graduate-Center/PDF/Centers/Center%20for%20Urban%20Research/Resources/Map1_raceethnreligion.png" alt="Fig 7. Predominant race/ethnicity by tract"/>
+  <figcaption>Fig 7. Predominant race/ethnicity by tract</figcaption>
+</figure>
+<p>So we redrawn the second cluster map (Fig 8.) by taking the same colors of respective ethnic groups.</p>
+<figure style="text-align:center">
+  <img src="file:////Users/yeyanbo/Projects/Coursera_Capstone/Week 2/image/comparison.png" alt="Fig 8. Ethnic Neighborhood clusters of New York City based on generalized categories"/>
+  <figcaption>Fig 8. Ethnic Neighborhood clusters of New York City based on generalized categories</figcaption>
+</figure>
+<p>In this map, we can see the location patterns of the color points are almost identical to the figure from that research. At least these three patterns are the same:</p>
+<ol>
+<li>Neighborhoods in <em>Staten Island</em> and <em>Manhattan</em> are mostly <strong>White</strong> dominant.</li>
+<li>The <strong>Hispanic</strong> neighborhoods are mainly distributed in <em>The Bronx</em> and area between <em>Brooklyn</em> and <em>Queens</em>.</li>
+<li>The <strong>Caribbean</strong> neighborhoods can be divided into three geographical clusters in <em>The Bronx</em>, <em>Queens</em> and <em>Brooklyn</em>.</li>
+</ol>
+<p>But there are also some differences between the two:</p>
+<ol>
+<li>The <strong>Asian</strong> neighborhoods distribution pattern, which scatter everywhere, is not like the previous one that most <strong>Asian</strong> neighborhoods are in <em>Queens</em>.</li>
+<li>The <strong>African</strong> neighborhoods are not shown on our map.</li>
+</ol>
+<p>For the first difference, maybe that's because the <strong>Asian</strong> food venues, such as <strong>Chinese Restaurant</strong>, <strong>Japanese Restaurant</strong> are so ubiquitous that make it hard to represent the respective ethnic group distribution.</p>
+<p>For the second difference, because there's little <strong>African Restaurant</strong> in our dataset, it's hard for it to be a dominant contribution for any neighborhood.</p>
+<p>To improve the result, maybe some other food venues should be included in our dataset, as in our analysis we only consider those ethnic food categories literally. A thorough study of the culture background for all food venue categories could help us include more as ethnic categories, which may could fix the data bias problem for categories like <strong>African</strong>.</p>
+<h2 id="5-conclusion">5. Conclusion</h2>
+<p>In this project, we clustered neighborhoods in New York City into different ethnic groups base on types of food venues nearby using k-means algorithm. We did the clustering twice, the first try with 40 categories as features and the second one with only 7 generalized categories. The patterns in both clustering results are almost the same, and the clustering result of ethnic groups is comparable to the real race distribution of New York City. Thus we provide a good way to cluster and identify the dominant ethnicity of neighborhoods.</p>
+
+    </body>
+    </html>
