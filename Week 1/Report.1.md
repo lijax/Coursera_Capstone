@@ -10,8 +10,8 @@ New York City is a multicultural city most popular in the United State. The popu
 
 ### 1.1 Problem
 
-Most people like to live in a neighborhood with those of their own ethnic group. In this study, we will try to identify the ethinity of each neighborhood in New York City based on their food culture, specifically, the categories of **Food Venues** from location data.
+Most people like to live in a neighborhood with those of their own ethnic group. In this study, we will try to identify the ethnicity of each neighborhood in New York City based on their food culture, specifically, the categories of **Food Venues** from location data.
 
 ### 1.2 Interest
 
-Identifying the domiant race of each neighborhood would be helpful to those who want to live or do buissiness in New York City.
+Identifying the dominant race of each neighborhood would be helpful to those who want to live or do bushiness in New York City.

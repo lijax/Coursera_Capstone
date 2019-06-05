@@ -1,8 +1,8 @@
 <h1 style="text-align:center">Identifying Ethnic Neighborhoods of New York City by Food Culture</h1>
 <h3 style="text-align:center">Capstone Project: The Battle of Neighborhoods</h3>
 
-<h3 style="text-align:center">Yanbo Ye</h3>
-<h3 style="text-align:center">2019-05-20</h3>
+<h4 style="text-align:center">Yanbo Ye</h4>
+<h4 style="text-align:center">2019-05-20</h4>
 
 ## 1. Introduction
 
@@ -10,11 +10,11 @@ New York City is a multicultural city most popular in the United State. The popu
 
 ### 1.1 Problem
 
-Most people like to live in a neighborhood with those of their own ethnic group. In this study, we will try to identify the ethinity of each neighborhood in New York City based on their food culture, specifically, the categories of **Food Venues** from location data.
+Most people like to live in a neighborhood with those of their own ethnic group. In this study, we will try to identify the ethnicity of each neighborhood in New York City based on their food culture, specifically, the categories of **Food Venues** from location data.
 
 ### 1.2 Interest
 
-Identifying the domiant race of each neighborhood would be helpful to those who want to live or do buissiness in New York City.
+Identifying the dominant race of each neighborhood would be helpful to those who want to live or do bushiness in New York City.
 
 ## 2. Data
 
@@ -28,7 +28,7 @@ The relation of food venue categories was downloaded from Foursquare's [categori
 
 ### 2.2 Data Cleaning
 
-The neighborhood data, oringally in GeoJSON format, was transformed into a table with columns of `Neighborhood`, `Borough`, `Latitude`,`Longitude` and 306 entries.
+The neighborhood data, originally in GeoJSON format, was transformed into a table with columns of `Neighborhood`, `Borough`, `Latitude`,`Longitude` and 306 entries.
 
 |     | Neighborhood | Borough | Latitude  | Longitude  |
 | --- | ------------ | ------- | --------- | ---------- |
@@ -110,31 +110,31 @@ In this project, we'll try to cluster neighborhoods in New York City and assign 
 
 1. For one neighborhood, the vector of venue count of each categories denote as:
 
-   $$\vec C = (c_1, c_2, \cdots, c_n)$$
+$$\vec C = (c_1, c_2, \cdots, c_n)$$
 
-2. As we only consider how much portion each category contribute to the final ethnic label of the neighborhood, we'll define neighborhood feature vector as:
+2. As we only consider how much weight each category contribute to the final ethnic label of the neighborhood, we'll define neighborhood feature vector as:
 
-    $$\vec F = \frac{\vec C}{\sum_{i=1}^n{c_i}}$$
+$$\vec F = \frac{\vec C}{\sum_{i=1}^n{c_i}}$$
 
 3. For all $m$ neighborhood, we got our feature matrix as:
 
-    $$F =
-    \begin{pmatrix}
-    \vec F_1\\
-    \vec F_2\\
-    \vdots\\
-    \vec F_m\\
-    \end{pmatrix}$$
+$$F =
+\begin{pmatrix}
+\vec F_1\\
+\vec F_2\\
+\vdots\\
+\vec F_m\\
+\end{pmatrix}$$
 
-After clustering, we need to examine the cluster and assign each cluster an label. Suppose we got $k$ clusters. For each cluster with $N$ neighborhoods, we use the mean to evaluate category contribution. We got our cluster evaluation matrix as:
+After clustering, we need to examine the cluster and assign each cluster an label. Suppose we got $k$ clusters. For each cluster with $N$ neighborhoods, we use the mean to measure each category weight. We got our category weight matrix of clusters as:
 
-  $$ E =
-    \begin{pmatrix}
-    \frac{\sum_{i=1}^{N_1} \vec F_i}{N_1} \\
-    \frac{\sum_{i=1}^{N_2} \vec F_i}{N_2} \\
-    \vdots\\
-    \frac{\sum_{i=1}^{N_k} \vec F_i}{N_k} \\
-    \end{pmatrix}$$
+$$E =
+\begin{pmatrix}
+\frac{\sum_{i=1}^{N_1} \vec F_i}{N_1} \\
+\frac{\sum_{i=1}^{N_2} \vec F_i}{N_2} \\
+\vdots\\
+\frac{\sum_{i=1}^{N_k} \vec F_i}{N_k} \\
+\end{pmatrix}$$
 
 ### 3.1 Clustering with raw categories
 
@@ -145,11 +145,11 @@ First, we use 40 category features to cluster neighborhoods using k-means. The e
   <figcaption>Fig 1. Clustering elbow curve based on raw categories</figcaption>
 </figure>
 
-There's no quite obvious elbow points on the curve. Maybe 6 or 8 can be the choice and we choose 8. The contribution of top 10 categories for the result clusters were plotted in pie chart (Fig 2.).
+There's no quite obvious elbow points on the curve. Maybe 6 or 8 can be the choice and we choose 8. The weight of top 10 categories for the result clusters were plotted in pie chart (Fig 2.).
 
 <figure style="text-align:center">
-  <img src="image/first_clustring_result.png" alt="Fig 2. Category mean contribution of neighborhood clusters based on raw categories"/>
-  <figcaption>Fig 2. Category mean contribution of neighborhood clusters based on raw categories</figcaption>
+  <img src="image/first_clustring_result.png" alt="Fig 2. Category mean weight of neighborhood clusters based on raw categories"/>
+  <figcaption>Fig 2. Category mean weight of neighborhood clusters based on raw categories</figcaption>
 </figure>
 
 From the result, we can assign labels as follows:
@@ -199,11 +199,11 @@ After merge, the same process conducted as the first clustering.
 The elbow curve is as above (Fig 4.) and we still use 8 as number of clusters.
 
 <figure style="text-align:center">
-  <img src="image/second_clustring_result.png" alt="Fig 5. Category mean contribution of neighborhood clusters based on generalized categories"/>
-  <figcaption>Fig 5. Category mean contribution of neighborhood clusters based on generalized categories</figcaption>
+  <img src="image/second_clustring_result.png" alt="Fig 5. Category mean weight of neighborhood clusters based on generalized categories"/>
+  <figcaption>Fig 5. Category mean weight of neighborhood clusters based on generalized categories</figcaption>
 </figure>
 
-From the contribution pie charts (Fig 5.) of the clustering result, we can assign labels as below:
+From the category weight pie charts (Fig 5.) of the clustering result, we can assign labels as below:
 
 1. The first cluster is **Asian Diverse**, with *Asian* (including *East Asian* and *Other Asian*) and *White* take up the most part.
 2. The second cluster is **Hispanic** dominant.

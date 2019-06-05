@@ -10,11 +10,11 @@ New York City is a multicultural city most popular in the United State. The popu
 
 ### 1.1 Problem
 
-Most people like to live in a neighborhood with those of their own ethnic group. In this study, we will try to identify the ethinity of each neighborhood in New York City based on their food culture, specifically, the categories of **Food Venues** from location data.
+Most people like to live in a neighborhood with those of their own ethnic group. In this study, we will try to identify the ethnicity of each neighborhood in New York City based on their food culture, specifically, the categories of **Food Venues** from location data.
 
 ### 1.2 Interest
 
-Identifying the domiant race of each neighborhood would be helpful to those who want to live or do buissiness in New York City.
+Identifying the dominant race of each neighborhood would be helpful to those who want to live or do bushiness in New York City.
 
 ## 2. Data
 
@@ -28,7 +28,7 @@ The relation of food venue categories was downloaded from Foursquare's [categori
 
 ### 2.2 Data Cleaning
 
-The neighborhood data, oringally in GeoJSON format, was transformed into a table with columns of `Neighborhood`, `Borough`, `Latitude`,`Longitude` and 306 entries.
+The neighborhood data, originally in GeoJSON format, was transformed into a table with columns of `Neighborhood`, `Borough`, `Latitude`,`Longitude` and 306 entries.
 
 |     | Neighborhood | Borough | Latitude  | Longitude  |
 | --- | ------------ | ------- | --------- | ---------- |
